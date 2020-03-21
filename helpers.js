@@ -10,7 +10,7 @@ db.serialize(function() {
   );
 });
 
-function getAtualState() {
+function getActualState() {
   axios
     .get('https://corona.lmao.ninja/countries/portugal')
     .then(function(response) {

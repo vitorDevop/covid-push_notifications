@@ -6,11 +6,11 @@ const axios = require('axios');
 const helpers = require('./helpers');
 
 const executeFunctions = () => {
-  //   helpers.getAtualState();
+  //   helpers.getActualState();
   helpers.getHistory();
 };
 executeFunctions();
-// setInterval(helpers.getAtualState(), 3600000); //1 hora
+// setInterval(helpers.getActualState(), 3600000); //1 hora
 // setInterval(helpers.getHistory(), 10800000); //3 horas
 app.get('/', (req, res) => {
   //   res.send('home');
