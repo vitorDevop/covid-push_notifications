@@ -10,7 +10,7 @@ db.serialize(function() {
   );
 });
 
-function getActualState() {
+function getActualState(sendNotification, subscriptions) {
   axios
     .get('https://corona.lmao.ninja/countries/portugal')
     .then(function(response) {
@@ -29,6 +29,15 @@ function getActualState() {
                 `INSERT INTO COVID_CASES (cases, deaths, recovered, active, critical) VALUES (${response.data.cases}, ${response.data.deaths}, ${response.data.recovered}, ${response.data.active}, ${response.data.critical})`
               );
               console.log('send push notification...');
+              if (subscriptions.length > 0) {
+                subscriptions.forEach(subscriber => {
+                  sendNotification(
+                    'Novos dados - Evolução do Covid-19 Portugal',
+                    `casos: ${response.data.cases} \nmortes: ${response.data.deaths} \nrecuperados: ${response.data.recovered} \ncasos ativos: ${response.data.active} \nestado critico: ${response.data.critical}`,
+                    subscriber
+                  );
+                });
+              }
             }
           }
         );
@@ -43,7 +52,7 @@ function getActualState() {
     });
 }
 
-function getHistory() {
+function getHistory(sendNotification, subscriptions) {
   axios
     .get('https://corona.lmao.ninja/historical')
     .then(function(response) {
@@ -91,6 +100,15 @@ function getHistory() {
             console.log(`${newDeads} novas mortes`);
             console.log(`${newRecovered} pessoas recuperadas`);
             console.log('send push notification...');
+            if (subscriptions.length > 0) {
+              subscriptions.forEach(subscriber => {
+                sendNotification(
+                  'Evolução do covid-19 Portugal',
+                  `${newCases} novos casos \n${newDeads} novas mortes \n${newRecovered} pessoas recuperadas`,
+                  subscriber
+                );
+              });
+            }
             return true;
           } else {
             console.log('Ainda não existem registos para hoje');
