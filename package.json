@@ -4,7 +4,9 @@
   "description": "a covid push notificatios service",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "start:dev": "nodemon .",
+    "start:prod": "node server"
   },
   "author": "Vítor Barroso",
   "license": "MIT",

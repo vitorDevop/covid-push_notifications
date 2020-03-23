@@ -31,7 +31,7 @@ app.post('/subscribe', (req, res) => {
   // Get push subscription object
   const subscription = req.body;
   // console.log(subscription);
-  log(subscription);
+  // log(subscription);
   if (
     Object.keys(subscription).length === 0 &&
     subscription.constructor === Object
@@ -40,16 +40,34 @@ app.post('/subscribe', (req, res) => {
     // console.log();
     log('Empty Object passed to subscription');
   } else {
-    log('Subscription added...');
-    subscriptions.push(subscription);
+    const equalSub = subscriptions.filter(function(sub) {
+      return (
+        sub.endpoint === subscription.endpoint &&
+        sub.expirationTime === subscription.expirationTime &&
+        sub.keys.p256dh === subscription.keys.p256dh &&
+        sub.keys.auth === subscription.keys.auth
+      );
+    });
+    if (
+      !(
+        Object.keys(equalSub).length === 0 &&
+        subscription.constructor === Object
+      )
+    ) {
+      log('Subscription already added...');
+    } else {
+      log('subscriptions = ', subscriptions);
+      subscriptions.push(subscription);
+      log('Subscription added...');
 
-    //Send 201 - resource created
-    res.status(201).json({});
-    sendNotification(
-      'Obrigado pela sua preferência',
-      'Serão enviadas notificações brevemente',
-      subscription
-    );
+      //Send 201 - resource created
+      res.status(201).json({});
+      sendNotification(
+        'Obrigado pela sua preferência',
+        'Serão enviadas notificações brevemente',
+        subscription
+      );
+    }
   }
 });
 
