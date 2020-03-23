@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const { dynoUrl, privateVapidKey, publicVapidKey } = require('./config');
+console.log(publicVapidKey);
 const env = process.env.NODE_ENV || 'dev'; //dev, production
 var log = require('debug')('subscribe');
 const helpers = require('./helpers');
