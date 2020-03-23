@@ -5,7 +5,10 @@ const webpush = require('web-push');
 const bodyParser = require('body-parser');
 const path = require('path');
 
+const env = process.env.NODE_ENV || 'dev';
 const helpers = require('./helpers');
+const wakeUpDyno = require('./wakeUpDyno');
+const DYNO_URL = 'https://covid19-updates-tracker.herokuapp.com/home';
 
 let app = express();
 var subscriptions = [];
@@ -31,15 +34,28 @@ app.post('/subscribe', (req, res) => {
   // Get push subscription object
   const subscription = req.body;
   console.log(subscription);
-  subscriptions.push(subscription);
+  if (
+    Object.keys(subscription).length === 0 &&
+    subscription.constructor === Object
+  ) {
+    res.status(404).json({ message: 'No subscription passed' });
+    console.log('Empty Object passed to subscription');
+  } else {
+    subscriptions.push(subscription);
 
-  //Send 201 - resource created
-  res.status(201).json({});
-  sendNotification(
-    'Obrigado pela sua preferência',
-    'Serão enviadas notificações brevemente',
-    subscription
-  );
+    //Send 201 - resource created
+    res.status(201).json({});
+    sendNotification(
+      'Obrigado pela sua preferência',
+      'Serão enviadas notificações brevemente',
+      subscription
+    );
+  }
+});
+
+app.get('/home', (req, res) => {
+  res.send('Utilize as nossas notificações');
+  console.log(process.env.HOST);
 });
 
 function sendNotification(title, body, subscription) {
@@ -80,4 +96,10 @@ cron.schedule('0 20 * * *', () => {
   }, 1800000);
 });
 
-app.listen(port, () => console.log(`Server started on port: ${port}`));
+app.listen(port, () => {
+  console.log(`Server started on port: ${port}`);
+  if (env != 'dev') {
+    wakeUpDyno(DYNO_URL);
+    // console.log('not dev');
+  }
+});
