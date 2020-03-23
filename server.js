@@ -5,10 +5,11 @@ const webpush = require('web-push');
 const bodyParser = require('body-parser');
 const path = require('path');
 
-const env = process.env.NODE_ENV || 'dev';
+const { dynoUrl, privateVapidKey, publicVapidKey } = require('./config');
+const env = process.env.NODE_ENV || 'dev'; //dev, production
+var log = require('debug')('subscribe');
 const helpers = require('./helpers');
 const wakeUpDyno = require('./wakeUpDyno');
-const DYNO_URL = 'https://covid19-updates-tracker.herokuapp.com/home';
 
 let app = express();
 var subscriptions = [];
@@ -17,10 +18,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.disable('x-powered-by');
 const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
-
-const publicVapidKey =
-  'BObq8X1-SPUeRd5BjXGib0Uue6JQZMSg-kqUclmlXGcsaEsyPYfZM14Ua5ZH1hmLRBTYKe6gdFRWrTLWljQ8VNQ';
-const privateVapidKey = 'AX_8wHANZnW3nZH1yp9kzxLT1lmurygDLwGljvcts08';
 
 //VapidKeys - identify who send push notification
 webpush.setVapidDetails(
@@ -33,14 +30,17 @@ webpush.setVapidDetails(
 app.post('/subscribe', (req, res) => {
   // Get push subscription object
   const subscription = req.body;
-  console.log(subscription);
+  // console.log(subscription);
+  log(subscription);
   if (
     Object.keys(subscription).length === 0 &&
     subscription.constructor === Object
   ) {
     res.status(404).json({ message: 'No subscription passed' });
-    console.log('Empty Object passed to subscription');
+    // console.log();
+    log('Empty Object passed to subscription');
   } else {
+    log('Subscription added...');
     subscriptions.push(subscription);
 
     //Send 201 - resource created
@@ -55,7 +55,6 @@ app.post('/subscribe', (req, res) => {
 
 app.get('/home', (req, res) => {
   res.send('Utilize as nossas notificações');
-  console.log(process.env.HOST);
 });
 
 function sendNotification(title, body, subscription) {
@@ -98,8 +97,8 @@ cron.schedule('0 20 * * *', () => {
 
 app.listen(port, () => {
   console.log(`Server started on port: ${port}`);
-  if (env != 'dev') {
-    wakeUpDyno(DYNO_URL);
-    // console.log('not dev');
+  if (env !== 'dev') {
+    //In production
+    wakeUpDyno(dynoUrl);
   }
 });
