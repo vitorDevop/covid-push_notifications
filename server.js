@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const { dynoUrl, privateVapidKey, publicVapidKey } = require('./config');
-console.log(publicVapidKey);
 const env = process.env.NODE_ENV || 'dev'; //dev, production
 var log = require('debug')('subscribe');
 const helpers = require('./helpers');
@@ -97,10 +96,15 @@ executeFunctions(); */
 //   10000
 // );
 
+setTimeout(
+  () => helpers.getActualState(sendNotification, subscriptions),
+  120000
+); //executes first time after 2 min
+
 setInterval(
   () => helpers.getActualState(sendNotification, subscriptions),
-  3600000
-); //1 hora
+  1200000
+); //1 h=3600000 / 20 min=1200000
 
 //Executes always at 20pm of the day
 cron.schedule('0 20 * * *', () => {
