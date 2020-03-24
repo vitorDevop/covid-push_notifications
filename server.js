@@ -55,6 +55,7 @@ app.post('/subscribe', (req, res) => {
       )
     ) {
       log('Subscription already added...');
+      res.status(204).json({ message: 'Subscription already added' });
     } else {
       log('subscriptions = ', subscriptions);
       subscriptions.push(subscription);
